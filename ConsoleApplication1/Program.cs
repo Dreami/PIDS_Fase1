@@ -84,6 +84,8 @@ namespace ConsoleApplication1
                 Match m = r.Match(txtContent);
                 for (int i = 0; i < m.Length; i++)
                     specialWords.Add(m.Groups[i].ToString());
+
+                specialWords.Sort();
                 foreach (string word in specialWords)
                 {
                     Console.WriteLine(word);
