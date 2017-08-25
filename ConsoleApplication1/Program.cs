@@ -20,7 +20,7 @@ namespace ConsoleApplication1
             string output = "";
             // ------------PARTE 1
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            
+
             foreach (FileInfo file in Files)
             {
                 var watchEach = System.Diagnostics.Stopwatch.StartNew();
@@ -40,13 +40,14 @@ namespace ConsoleApplication1
             Console.ReadLine();
 
             // ------------PARTE 2
-            
+
             watch.Restart();
             string outputNoTags = "";
             foreach (FileInfo file in Files)
             {
                 var watchEach = System.Diagnostics.Stopwatch.StartNew();
                 string htmlContent = File.ReadAllText(file.FullName);
+                htmlContent.Trim();
                 htmlContent = Regex.Replace(htmlContent, "<.*?>", String.Empty);
                 outputNoTags = allfiles + "\\" + file.Name;
                 outputNoTags = outputNoTags.Replace(".html", ".txt");
@@ -68,11 +69,11 @@ namespace ConsoleApplication1
             Console.ReadLine();
 
             // ------------PARTE 3
-            
+
             Files = d.GetFiles("*.txt");
             string pattern = "([A-Za-z?]&(.?)(acute;|tilde;)+[^\\s\\.\\,\\?=#?]+)";
-
-            List<string> specialWords = new List<string>();
+            List<string> allWords;
+            List<string> specialWords = new List<String>();
             Regex r = new Regex(pattern, RegexOptions.IgnoreCase);
 
             watch.Restart();
@@ -81,17 +82,29 @@ namespace ConsoleApplication1
                 var watchEach = System.Diagnostics.Stopwatch.StartNew();
                 string txtContent = File.ReadAllText(file.FullName);
                 txtContent.Trim();
+
+                allWords = new List<String>(
+                    txtContent.Split(new string[] { " " }, StringSplitOptions.None));
+                allWords.Sort();
+                /*
                 Match m = r.Match(txtContent);
                 for (int i = 0; i < m.Length; i++)
                     specialWords.Add(m.Groups[i].ToString());
 
                 specialWords.Sort();
+                */
+                foreach (string containsSpecialChar in allWords)
+                {
+                    if (r.IsMatch(containsSpecialChar))
+                        specialWords.Add(containsSpecialChar);
+                }
+
                 foreach (string word in specialWords)
                 {
                     Console.WriteLine(word);
                     output_print(output_path3, word);
                 }
-                
+
                 watchEach.Stop();
                 output = "\nTiempo en encontrar palabras con caracteres especiales: " + watchEach.Elapsed.TotalSeconds.ToString() +
                     " s \n--------------------------";
@@ -114,7 +127,7 @@ namespace ConsoleApplication1
             {
                 if (!File.Exists(output_path))
                 {
-                    using (var stream = File.Create(output_path));
+                    using (var stream = File.Create(output_path)) ;
                     TextWriter tw = new StreamWriter(output_path, false);
                     tw.WriteLine(output);
                     tw.Close();
@@ -132,7 +145,8 @@ namespace ConsoleApplication1
             {
                 Console.WriteLine(directoryExc.StackTrace);
             }
-            catch (IOException ioExc) {
+            catch (IOException ioExc)
+            {
                 Console.WriteLine(ioExc.StackTrace);
             }
             catch (UnauthorizedAccessException unauthorizedExc)
